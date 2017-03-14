@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 
 public class PlayerCtrl : MonoBehaviour {
-	public GameObject Player;
+	public GameObject PlayerInLand;
+	public GameObject PlayerInSea;
+	private GameObject _player;
 	public GameObject Track;
 
 	private int _x,
@@ -11,6 +13,8 @@ public class PlayerCtrl : MonoBehaviour {
 				_count_lives = 3;
 
 	private bool _isWater,
+				_inWater,
+				_inLand,
 				_isSelfCross;
 
 	void Start () {
@@ -27,10 +31,16 @@ public class PlayerCtrl : MonoBehaviour {
 		_z = 0;
 		_direction = 0;
 		_isWater = false;
-		Player = Instantiate(Player, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
+
+		_inWater = false;
+		//_inLand = 
+
+
+		_player = Instantiate(PlayerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
 	void move() {
+		//_direction = SwipeInput.SetDirection(_direction);
 		_direction = getDirection();
 
 		if (_direction == 2) _x--;
@@ -43,7 +53,7 @@ public class PlayerCtrl : MonoBehaviour {
 		if (_y < 0) _y = 0;
 		if (_x < 0) _x = 0;
 
-		Player.transform.position = new Vector3(_x, _y, _z);
+		_player.transform.position = new Vector3(_x, _y, _z);
 
 		_isSelfCross = Field.Instance.field[_x, _y].tag == "Track";
 
@@ -51,7 +61,7 @@ public class PlayerCtrl : MonoBehaviour {
 			_direction = 0;
 			_isWater = false;
 			Field.Instance.fillTrackArea();
-			print(Field.Instance.getSeaPercent());
+			//print(Field.Instance.getSeaPercent());
 		}
 		if (Field.Instance.field[_x, _y].tag == "Sea") {
 			_isWater = true;
@@ -60,6 +70,29 @@ public class PlayerCtrl : MonoBehaviour {
 	}
 
 	int getDirection() {
+		// Android
+		if (Input.touchCount > 0 && Input.touchCount < 2 && Input.GetTouch(0).phase == TouchPhase.Moved) {
+			Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
+
+			if (Mathf.Abs(touchDeltaPosition.x) > Mathf.Abs(touchDeltaPosition.y)) {
+				if (touchDeltaPosition.x < 0) {
+					_direction = 2;
+				}
+				else {
+					_direction = -2;
+				}
+			}
+			else {
+				if (touchDeltaPosition.y < 0) {
+					_direction = -1;
+				}
+				else {
+					_direction = 1;
+				}
+			}
+		}
+
+		// PC
 		if (Input.GetKeyDown(KeyCode.LeftArrow))
 			_direction = 2;
 		if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -68,6 +101,11 @@ public class PlayerCtrl : MonoBehaviour {
 			_direction = 1;
 		if (Input.GetKeyDown(KeyCode.DownArrow))
 			_direction = -1;
+
 		return _direction;
+	}
+
+	public void toConsole() {
+		print("I am working");
 	}
 }

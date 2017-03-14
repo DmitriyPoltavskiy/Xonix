@@ -4,8 +4,8 @@ public class Field : MonoBehaviour {
     public GameObject Land;
     public GameObject Sea;
 
-	public const int WIDTH = 97;
-	public const int HEIGHT = 50;
+	public const int WIDTH = 82;
+	public const int HEIGHT = 42;
 
 	public int countScore = 0;
 

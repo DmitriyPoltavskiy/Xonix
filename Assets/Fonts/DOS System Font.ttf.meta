@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 84e94787a22f22c4abded4f1d77cf5ad
+timeCreated: 1489525053
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: DOS System Font
+  fontNames:
+  - DOS System Font
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
