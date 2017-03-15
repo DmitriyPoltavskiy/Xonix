@@ -18,6 +18,7 @@ public class Field : MonoBehaviour {
 	void Awake() {
 		Instance = this;
 	}
+
 	void Start () {
         init();
     }
@@ -71,8 +72,10 @@ public class Field : MonoBehaviour {
 
 	public float getSeaPercent() {
 		float seaArea = (WIDTH - 4) * (HEIGHT - 4);
-		float seaPercent = 100 - (currentSeaArea / seaArea * 100);
-		return seaPercent;
+		float seaPercent = currentSeaArea / seaArea * 100;
+		if (seaPercent == 0)
+			return 1;
+		return 100 - seaPercent;
 	}
 
 }

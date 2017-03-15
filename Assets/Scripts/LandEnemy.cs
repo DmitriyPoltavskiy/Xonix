@@ -3,7 +3,17 @@
 public class LandEnemy : MonoBehaviour {
 	public GameObject Land_enemy;
 
-	private int _dx, _dy, _x, _y, _z = 0;
+	private int _dx, 
+				_dy, 
+				_x, 
+				_y, 
+				_z = 0;
+
+	public static LandEnemy Instance { get; private set; }
+
+	void Awake() {
+		Instance = this;
+	}
 
 	void Start() {
 		init();
@@ -32,7 +42,7 @@ public class LandEnemy : MonoBehaviour {
 		Land_enemy = Instantiate(Land_enemy, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
-	void updateDXandDY() {
+	void UpdateDirection() {
 		if (_x <= 0 || _x >= Field.WIDTH - 1) _dx = -_dx;
 		if (_y <= 0 || _y >= Field.HEIGHT - 1) _dy = -_dy;
 
@@ -41,9 +51,23 @@ public class LandEnemy : MonoBehaviour {
 	}
 
 	void move() {
-		updateDXandDY();
+		UpdateDirection();
 		_x += _dx;
 		_y += _dy;	
 		Land_enemy.transform.position = new Vector3(_x, _y, _z);
+	}
+
+	public bool isHitXonix() {
+
+		if (_x + _dx == PlayerCtrl.Instance.getX() && _y + _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x - _dx == PlayerCtrl.Instance.getX() && _y - _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x + _dx == PlayerCtrl.Instance.getX() && _y - _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x - _dx == PlayerCtrl.Instance.getX() && _y + _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x + _dx == PlayerCtrl.Instance.getX() && _y == PlayerCtrl.Instance.getY()) return true;
+		if (_x - _dx == PlayerCtrl.Instance.getX() && _y == PlayerCtrl.Instance.getY()) return true;
+		if (_x == PlayerCtrl.Instance.getX() && _y + _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x == PlayerCtrl.Instance.getX() && _y - _dy == PlayerCtrl.Instance.getY()) return true;
+
+		return false;
 	}
 }

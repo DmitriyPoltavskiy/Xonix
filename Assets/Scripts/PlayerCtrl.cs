@@ -17,6 +17,12 @@ public class PlayerCtrl : MonoBehaviour {
 				_inLand,
 				_isSelfCross;
 
+	public static PlayerCtrl Instance { get; private set; }
+
+	void Awake() {
+		Instance = this;
+	}
+
 	void Start () {
 		init();
 	}
@@ -32,15 +38,10 @@ public class PlayerCtrl : MonoBehaviour {
 		_direction = 0;
 		_isWater = false;
 
-		_inWater = false;
-		//_inLand = 
-
-
 		_player = Instantiate(PlayerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
 	void move() {
-		//_direction = SwipeInput.SetDirection(_direction);
 		_direction = getDirection();
 
 		if (_direction == 2) _x--;
@@ -61,12 +62,13 @@ public class PlayerCtrl : MonoBehaviour {
 			_direction = 0;
 			_isWater = false;
 			Field.Instance.fillTrackArea();
-			//print(Field.Instance.getSeaPercent());
+			print(Field.Instance.getSeaPercent());
 		}
 		if (Field.Instance.field[_x, _y].tag == "Sea") {
 			_isWater = true;
 			Field.Instance.field[_x, _y] = Instantiate(Track, new Vector3(_x, _y, 10), Quaternion.identity);
 		}
+		//_isSelfCross = Field.Instance.field[_x, _y].tag == "Track";
 	}
 
 	int getDirection() {
@@ -105,7 +107,27 @@ public class PlayerCtrl : MonoBehaviour {
 		return _direction;
 	}
 
-	public void toConsole() {
-		print("I am working");
+	public void setDirection(int direction) {
+		_direction = direction;
+	}
+
+	public bool IsSelfCrosed() {
+		return _isSelfCross;
+	}
+
+	public int getX() {
+		return _x;
+	}
+
+	public int getY() {
+		return _y;
+	}
+
+	public void decreaseLives() {
+		_count_lives--;
+	}
+
+	public int getCountLives() {
+		return _count_lives;
 	}
 }

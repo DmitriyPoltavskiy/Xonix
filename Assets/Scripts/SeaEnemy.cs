@@ -11,7 +11,13 @@ public class SeaEnemy : MonoBehaviour {
 				_y,
 				_z;
 
-    void Start () {
+	public static SeaEnemy Instance { get; private set; }
+
+	void Awake() {
+		Instance = this;
+	}
+
+	void Start () {
 		init();
 	}
 
@@ -29,15 +35,31 @@ public class SeaEnemy : MonoBehaviour {
 		seaEnemy = Instantiate(seaEnemy, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
-	void newDirection() {
+	void UpdateDirection() {
 		if (Field.Instance.field[_x + _dx, _y].tag == "Land") _dx = -_dx;
 		if (Field.Instance.field[_x, _y + _dy].tag == "Land") _dy = -_dy;
 	}
 
 	void move() {
-		newDirection();
+		UpdateDirection();
 		_x += _dx;
 		_y += _dy;
 		seaEnemy.transform.position = new Vector3(_x, _y, _z);
+	}
+
+	public bool isHitTrackOrXonix() {
+		UpdateDirection();
+
+		if (Field.Instance.field[_x, _y].tag == "Track") return true;
+		if (_x + _dx == PlayerCtrl.Instance.getX() && _y + _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x - _dx == PlayerCtrl.Instance.getX() && _y - _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x + _dx == PlayerCtrl.Instance.getX() && _y - _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x - _dx == PlayerCtrl.Instance.getX() && _y + _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x + _dx == PlayerCtrl.Instance.getX() && _y == PlayerCtrl.Instance.getY()) return true;
+		if (_x - _dx == PlayerCtrl.Instance.getX() && _y == PlayerCtrl.Instance.getY()) return true;
+		if (_x == PlayerCtrl.Instance.getX() && _y + _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_x == PlayerCtrl.Instance.getX() && _y - _dy == PlayerCtrl.Instance.getY()) return true;
+
+		return false;
 	}
 }
