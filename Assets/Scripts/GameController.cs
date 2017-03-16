@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 public class GameController : MonoBehaviour {
-	private const int WIN_PERCENT = 50;
+	private const int WIN_PERCENT = 75;
 	private bool _appIsPaused = false,
 				_gameIsWon = false,
 				_gameIsOver = false,
@@ -21,7 +21,9 @@ public class GameController : MonoBehaviour {
 
 	public void StartGame() {
 		Time.timeScale = 1;
-		GameObject.FindGameObjectWithTag("TapToPlay").SetActive(false);
+
+		foreach(GameObject tapToPlay in GameObject.FindGameObjectsWithTag("TapToPlay"))
+			tapToPlay.SetActive(false);
 	}
 
 	public void GameOver() {
