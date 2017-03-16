@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 
 public class PlayerCtrl : MonoBehaviour {
-	public GameObject PlayerInLand;
-	public GameObject PlayerInSea;
+	public GameObject PlayerInSea,
+					PlayerInLand,
+					Track;
+
 	private GameObject _player;
-	public GameObject Track;
 
 	private int _x,
 				_y,
@@ -62,13 +63,12 @@ public class PlayerCtrl : MonoBehaviour {
 			_direction = 0;
 			_isWater = false;
 			Field.Instance.fillTrackArea();
-			print(Field.Instance.getSeaPercent());
+			//print(Field.Instance.getSeaPercent());
 		}
 		if (Field.Instance.field[_x, _y].tag == "Sea") {
 			_isWater = true;
 			Field.Instance.field[_x, _y] = Instantiate(Track, new Vector3(_x, _y, 10), Quaternion.identity);
 		}
-		//_isSelfCross = Field.Instance.field[_x, _y].tag == "Track";
 	}
 
 	int getDirection() {

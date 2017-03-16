@@ -7,7 +7,7 @@ public class Field : MonoBehaviour {
 	public const int WIDTH = 82;
 	public const int HEIGHT = 42;
 
-	public int countScore = 0;
+	public int Score = 0;
 
 	public float currentSeaArea;
 
@@ -61,7 +61,7 @@ public class Field : MonoBehaviour {
 			for (int x = 0; x < WIDTH; x++) {
 				if (field[x, y].tag == "Track" || field[x, y].tag == "Sea") {
 					field[x, y] = Instantiate(Land, new Vector3(x, y, 10), Quaternion.identity);
-					countScore += 10;
+					Score += 10;
 				}
 				if (field[x, y].tag == "Temp") {
 					field[x, y].tag = "Sea";
