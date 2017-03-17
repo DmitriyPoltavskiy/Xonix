@@ -1,11 +1,8 @@
 ﻿using UnityEngine;
 
 public class PlayerCtrl : MonoBehaviour {
-	public GameObject PlayerInSea,
-					PlayerInLand,
-					Track;
-
 	private GameObject _player;
+	private Field _field;
 
 	private int _x,
 				_y,
@@ -18,31 +15,22 @@ public class PlayerCtrl : MonoBehaviour {
 				_inLand,
 				_isSelfCross;
 
-	public static PlayerCtrl Instance { get; private set; }
-
-	void Awake() {
-		Instance = this;
+	public PlayerCtrl(GameObject playerInLand, Field field) {
+		_field = field;
+		init(playerInLand);
 	}
 
-	void Start () {
-		init();
-	}
-
-	void Update () {
-		move();
-	}
-
-	void init() {
+	public void init(GameObject playerInLand) {
 		_y = Field.HEIGHT;
 		_x = Field.WIDTH / 2 - 1;
 		_z = 0;
 		_direction = 0;
 		_isWater = false;
 
-		_player = Instantiate(PlayerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
+		_player = Instantiate(playerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
-	void move() {
+	public void move(GameObject Track) {
 		_direction = getDirection();
 
 		if (_direction == 2) _x--;
@@ -57,22 +45,20 @@ public class PlayerCtrl : MonoBehaviour {
 
 		_player.transform.position = new Vector3(_x, _y, _z);
 
-		_isSelfCross = Field.Instance.field[_x, _y].tag == "Track";
+		_isSelfCross = _field.field[_x, _y].tag == "Track";
 
-		if (Field.Instance.field[_x, _y].tag == "Land" && _isWater) {
+		if (_field.field[_x, _y].tag == "Land" && _isWater) {
 			_direction = 0;
 			_isWater = false;
-			Field.Instance.fillTrackArea();
-			//print(Field.Instance.getSeaPercent());
+			_field.fillTrackArea();
 		}
-		if (Field.Instance.field[_x, _y].tag == "Sea") {
+		if (_field.field[_x, _y].tag == "Sea") {
 			_isWater = true;
-			Field.Instance.field[_x, _y] = Instantiate(Track, new Vector3(_x, _y, 10), Quaternion.identity);
+			_field.field[_x, _y] = Instantiate(Track, new Vector3(_x, _y, 10), Quaternion.identity);
 		}
 	}
 
 	int getDirection() {
-		// Android
 		if (Input.touchCount > 0 && Input.touchCount < 2 && Input.GetTouch(0).phase == TouchPhase.Moved) {
 			Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
 
@@ -94,7 +80,6 @@ public class PlayerCtrl : MonoBehaviour {
 			}
 		}
 
-		// PC
 		if (Input.GetKeyDown(KeyCode.LeftArrow))
 			_direction = 2;
 		if (Input.GetKeyDown(KeyCode.RightArrow))

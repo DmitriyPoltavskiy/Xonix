@@ -1,40 +1,41 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class InfoCtrl : MonoBehaviour {
-	public GameObject Score;
-	public GameObject Xn;
-	public GameObject Full;
-	public GameObject Time;
+	private Field _field;
+	private PlayerCtrl _player;
+	private GameObject _score;
+	private GameObject _xn;
+	private GameObject _full;
+	private GameObject _time;
 
-	void Start () {
-		Score.GetComponent<Text>().text = "Score: " + 0;
-		Xn.GetComponent<Text>().text = "Xn: " + PlayerCtrl.Instance.getCountLives();
-		Full.GetComponent<Text>().text = "Full: " + 0 + "%";
-		Time.GetComponent<Text>().text = "Time: " + 0;
+	public InfoCtrl(GameObject score, 
+					GameObject xn, 
+					GameObject full, 
+					GameObject time, 
+					Field field, 
+					PlayerCtrl player) {
+
+		_field = field;
+		_player = player;
+		_score = score;
+		_xn = xn;
+		_full = full;
+		_time = time;
+
+		init();
 	}
 
-	void Update () {
-		Score.GetComponent<Text>().text = "Score: " + Field.Instance.Score;
-		Xn.GetComponent<Text>().text = "Xn: " + PlayerCtrl.Instance.getCountLives();
-		Full.GetComponent<Text>().text = "Full: " + (int)Field.Instance.getSeaPercent() + "%";
+	public void init() {
+		_score.GetComponent<Text>().text = "Score: " + 0;
+		_xn.GetComponent<Text>().text = "Xn: " + _player.getCountLives();
+		_full.GetComponent<Text>().text = "Full: " + 0 + "%";
+		_time.GetComponent<Text>().text = "Time: " + 0;
 	}
 
-	//public void setScore(int score) {
-	//	Score.GetComponent<Text>().text = "Score: " + score;
-	//}
-
-	//public void setXn(int xn) {
-	//	Score.GetComponent<Text>().text = "Score: " + xn;
-	//}
-
-	//public void setFull(int full) {
-	//	Score.GetComponent<Text>().text = "Score: " + full;
-	//}
-
-	//public void setTime(int time) {
-	//	Score.GetComponent<Text>().text = "Score: " + score;
-	//}
+	public void update() {
+		_score.GetComponent<Text>().text = "Score: " + _field.getScore();
+		_xn.GetComponent<Text>().text = "Xn: " + _player.getCountLives();
+		_full.GetComponent<Text>().text = "Full: " + (int)_field.getSeaPercent() + "%";
+	}
 }

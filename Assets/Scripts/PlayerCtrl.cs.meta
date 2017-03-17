@@ -1,10 +1,15 @@
 fileFormatVersion: 2
 guid: 99754bc4196dd5246896480ccc1c8869
-timeCreated: 1489246632
+timeCreated: 1489690097
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - PlayerInSea: {fileID: 1678957484067600, guid: 10a1a046f106f4b4aaf1d57966946067,
+      type: 2}
+  - PlayerInLand: {fileID: 1714893921407236, guid: eba6e749ba56a944ea567c3a622eeec0,
+      type: 2}
+  - Track: {fileID: 1078992356403838, guid: f2cb3ac8b9f9c6d4cb16c761ca8d707e, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

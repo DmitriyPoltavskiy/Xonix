@@ -1,28 +1,21 @@
 ﻿using UnityEngine;
 
 public class SeaEnemy : MonoBehaviour {
-    public GameObject seaEnemy;
-
-    private int _countSeaEnemy = 1;
-
     private int _dx,
 				_dy,
 				_x,
 				_y,
 				_z;
 
-	public static SeaEnemy Instance { get; private set; }
+	private GameObject _seaEnemy;
+	private Field _field;
+	private PlayerCtrl _player;
 
-	void Awake() {
-		Instance = this;
-	}
-
-	void Start () {
+	public SeaEnemy(GameObject seaEnemy, Field field, PlayerCtrl player) {
+		_seaEnemy = seaEnemy;
+		_field = field;
+		_player = player;
 		init();
-	}
-
-	void FixedUpdate() {
-		move();
 	}
 
 	void init() {
@@ -32,33 +25,26 @@ public class SeaEnemy : MonoBehaviour {
 		_dx = Random.Range(0, 1) == 0 ? 1 : -1;
 		_dy = Random.Range(0, 1) == 0 ? 1 : -1;
 
-		seaEnemy = Instantiate(seaEnemy, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
+		_seaEnemy = Instantiate(_seaEnemy, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
-	void UpdateDirection() {
-		if (Field.Instance.field[_x + _dx, _y].tag == "Land") _dx = -_dx;
-		if (Field.Instance.field[_x, _y + _dy].tag == "Land") _dy = -_dy;
+	public void UpdateDirection() {
+		if (_field.field[_x + _dx, _y].tag == "Land") _dx = -_dx;
+		if (_field.field[_x, _y + _dy].tag == "Land") _dy = -_dy;
 	}
 
-	void move() {
+	public void move() {
 		UpdateDirection();
 		_x += _dx;
 		_y += _dy;
-		seaEnemy.transform.position = new Vector3(_x, _y, _z);
+		_seaEnemy.transform.position = new Vector3(_x, _y, _z);
 	}
 
 	public bool isHitTrackOrXonix() {
 		UpdateDirection();
 
-		if (Field.Instance.field[_x, _y].tag == "Track") return true;
-		if (_x + _dx == PlayerCtrl.Instance.getX() && _y + _dy == PlayerCtrl.Instance.getY()) return true;
-		if (_x - _dx == PlayerCtrl.Instance.getX() && _y - _dy == PlayerCtrl.Instance.getY()) return true;
-		if (_x + _dx == PlayerCtrl.Instance.getX() && _y - _dy == PlayerCtrl.Instance.getY()) return true;
-		if (_x - _dx == PlayerCtrl.Instance.getX() && _y + _dy == PlayerCtrl.Instance.getY()) return true;
-		if (_x + _dx == PlayerCtrl.Instance.getX() && _y == PlayerCtrl.Instance.getY()) return true;
-		if (_x - _dx == PlayerCtrl.Instance.getX() && _y == PlayerCtrl.Instance.getY()) return true;
-		if (_x == PlayerCtrl.Instance.getX() && _y + _dy == PlayerCtrl.Instance.getY()) return true;
-		if (_x == PlayerCtrl.Instance.getX() && _y - _dy == PlayerCtrl.Instance.getY()) return true;
+		if (_field.field[_x, _y].tag == "Track") return true;
+		if (_x + _dx == _player.getX() && _y + _dy == _player.getY()) return true;
 
 		return false;
 	}

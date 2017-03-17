@@ -1,6 +1,38 @@
 ﻿using UnityEngine;
 
 public class GameController : MonoBehaviour {
+	[SerializeField]
+	private GameObject _player;
+	[SerializeField]
+	private GameObject _track;
+	private PlayerCtrl _playerObj;
+
+	[SerializeField]
+	private GameObject _seaEnemy;
+	private SeaEnemy _seaEnemyObj;
+	private SeaEnemy _seaEnemyObj2;
+
+	[SerializeField]
+	private GameObject _landEnemy;
+	private LandEnemy _landEnemyObj;
+
+	[SerializeField]
+	private GameObject _sea;
+	[SerializeField]
+	private GameObject _land;
+	private GameObject _field;
+	private Field _fieldObj;
+
+	[SerializeField]
+	private GameObject _score;
+	[SerializeField]
+	private GameObject _xn;
+	[SerializeField]
+	private GameObject _full;
+	[SerializeField]
+	private GameObject _time;
+	private InfoCtrl _info;
+
 	private const int WIN_PERCENT = 75;
 	private bool _appIsPaused = false,
 				_gameIsWon = false,
@@ -9,11 +41,31 @@ public class GameController : MonoBehaviour {
 
 
 	void Start() {
-		Time.timeScale = 0;
+		_fieldObj = new Field(_land, _sea);
+		_playerObj = new PlayerCtrl(_player, _fieldObj);
+		_seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj, _playerObj);
+		_seaEnemyObj2 = new SeaEnemy(_seaEnemy, _fieldObj, _playerObj);
+		_landEnemyObj = new LandEnemy(_landEnemy, _fieldObj, _playerObj);
+		_info = new InfoCtrl(_score, _xn, _full, _time, _fieldObj, _playerObj);
+
+		//Time.timeScale = 0;
 	}
 
-	void Update () {
-		//GameOver();
+	void Update() {
+		if (!_gameIsOver) {
+			_playerObj.move(_track);
+		}
+	}
+
+	void FixedUpdate () {
+		GameOver();
+
+		if (!_gameIsOver) {
+			_seaEnemyObj.move();
+			_seaEnemyObj2.move();
+			_landEnemyObj.move();
+			_info.update();
+		}
 
 		if (Input.GetKeyDown(KeyCode.Escape))
 			Application.Quit();
@@ -27,27 +79,27 @@ public class GameController : MonoBehaviour {
 	}
 
 	public void GameOver() {
-		if ((PlayerCtrl.Instance.IsSelfCrosed() || SeaEnemy.Instance.isHitTrackOrXonix() || LandEnemy.Instance.isHitXonix()) && !_gameIsOver) {
+		if ((_playerObj.IsSelfCrosed() || _seaEnemyObj.isHitTrackOrXonix() || _seaEnemyObj2.isHitTrackOrXonix() || _landEnemyObj.isHitXonix()) && !_gameIsOver) {
 			_gameIsOver = true;
-			PlayerCtrl.Instance.decreaseLives();
+			_playerObj.decreaseLives();
 
 			// --> stop game
-			PlayerCtrl.Instance.setDirection(0);
+			_playerObj.setDirection(0);
 			Time.timeScale = 0;
 			// <--
 
 			print("game over");
 
-			if (PlayerCtrl.Instance.getCountLives() > 0) {
+			if (_playerObj.getCountLives() > 0) {
 				print("You lose!");
 				Time.timeScale = 0;
 			}
 		}
-		if (Field.Instance.getSeaPercent() >= WIN_PERCENT && !_gameIsWon) {
+		if (_fieldObj.getSeaPercent() >= WIN_PERCENT && !_gameIsWon) {
 			_gameIsWon = true;
 
 			// --> stop game
-			PlayerCtrl.Instance.setDirection(0);
+			_playerObj.setDirection(0);
 			Time.timeScale = 0;
 			// <--
 

@@ -1,27 +1,23 @@
 ﻿using UnityEngine;
 
 public class Field : MonoBehaviour {
-    public GameObject Land;
-    public GameObject Sea;
+	private GameObject _land;
+	private GameObject _sea;
 
 	public const int WIDTH = 82;
 	public const int HEIGHT = 42;
 
-	public int Score = 0;
+	private int _score = 0;
 
-	public float currentSeaArea;
+	private float _currentSeaArea;
 
 	public GameObject[,] field = new GameObject[WIDTH, HEIGHT];
 
-	public static Field Instance { get; private set; }
-
-	void Awake() {
-		Instance = this;
+	public  Field(GameObject Land, GameObject Sea) {
+		_land = Land;
+		_sea = Sea;
+		init();
 	}
-
-	void Start () {
-        init();
-    }
 
 	void init() {
 		int x_start = 0;
@@ -35,8 +31,8 @@ public class Field : MonoBehaviour {
 			for (int x = 0; x < WIDTH; x++, current_pos_x++)
 				field[x, y] =
 					(x < 2 || x > WIDTH - 3 || y < 2 || y > HEIGHT - 3) ?
-					Instantiate(Land, new Vector3(current_pos_x, current_pos_y, z_start), Quaternion.identity) as GameObject :
-					Instantiate(Sea, new Vector3(current_pos_x, current_pos_y, z_start), Quaternion.identity) as GameObject;
+					Instantiate(_land, new Vector3(current_pos_x, current_pos_y, z_start), Quaternion.identity) as GameObject :
+					Instantiate(_sea, new Vector3(current_pos_x, current_pos_y, z_start), Quaternion.identity) as GameObject;
     }
 
 	public void saparateEnemy(int x, int y) {
@@ -51,7 +47,7 @@ public class Field : MonoBehaviour {
 	}
 
 	public void fillTrackArea() {
-		currentSeaArea = 0;
+		_currentSeaArea = 0;
 
 		GameObject[] enemies = GameObject.FindGameObjectsWithTag("EnemyInSea");
 		foreach(GameObject enemy in enemies)
@@ -60,22 +56,26 @@ public class Field : MonoBehaviour {
 		for (int y = 0; y < HEIGHT; y++)
 			for (int x = 0; x < WIDTH; x++) {
 				if (field[x, y].tag == "Track" || field[x, y].tag == "Sea") {
-					field[x, y] = Instantiate(Land, new Vector3(x, y, 10), Quaternion.identity);
-					Score += 10;
+					field[x, y] = Instantiate(_land, new Vector3(x, y, 10), Quaternion.identity);
+					_score += 10;
 				}
 				if (field[x, y].tag == "Temp") {
 					field[x, y].tag = "Sea";
-					currentSeaArea++;
+					_currentSeaArea++;
 				}
 			}
 	}
 
 	public float getSeaPercent() {
 		float seaArea = (WIDTH - 4) * (HEIGHT - 4);
-		float seaPercent = currentSeaArea / seaArea * 100;
+		float seaPercent = _currentSeaArea / seaArea * 100;
 		if (seaPercent == 0)
 			return 1;
 		return 100 - seaPercent;
+	}
+
+	public int getScore() {
+		return _score;
 	}
 
 }
