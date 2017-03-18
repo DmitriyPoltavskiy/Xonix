@@ -16,10 +16,9 @@ public class Field : MonoBehaviour {
 	public Field(GameObject land, GameObject sea) {
 		_land = land;
 		_sea = sea;
-		init();
 	}
 
-	void init() {
+	public void init() {
 		int x_start = 0;
 		int y_start = 0;
 		int z_start = 10;
@@ -34,6 +33,19 @@ public class Field : MonoBehaviour {
 					Instantiate(_land, new Vector3(current_pos_x, current_pos_y, z_start), Quaternion.identity) as GameObject :
 					Instantiate(_sea, new Vector3(current_pos_x, current_pos_y, z_start), Quaternion.identity) as GameObject;
     }
+
+	public void destroy() {
+		int x_start = 0;
+		int y_start = 0;
+		int z_start = 10;
+
+		int current_pos_x = x_start;
+		int current_pos_y = y_start;
+
+		for (int y = 0; y < HEIGHT; y++, current_pos_y++, current_pos_x = x_start)
+			for (int x = 0; x < WIDTH; x++, current_pos_x++)
+				Destroy(field[x, y]);
+	}
 
 	public void saparateEnemy(int x, int y) {
 		if (field[x, y].tag != "Sea")

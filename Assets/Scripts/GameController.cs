@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class GameController : MonoBehaviour {
 	[SerializeField]
@@ -10,6 +11,7 @@ public class GameController : MonoBehaviour {
 	[SerializeField]
 	private GameObject _seaEnemy;
 	private SeaEnemy _seaEnemyObj;
+	private List<SeaEnemy> _seaEnemies = new List<SeaEnemy>();
 
 	[SerializeField]
 	private GameObject _landEnemy;
@@ -33,36 +35,45 @@ public class GameController : MonoBehaviour {
 	private InfoCtrl _info;
 
 	[SerializeField]
-	private GameObject _statePanel;
-	[SerializeField]
 	private GameObject _startGame;
 	[SerializeField]
 	private GameObject _paused;
 	[SerializeField]
-	private GameObject _nextLevel;
-	[SerializeField]
 	private GameObject _gameOver;
+	[SerializeField]
+	private GameObject _nextLevel;
+	private NextLevel _nextLevelObj;
 
-	private const int WIN_PERCENT = 75;
+	private const int WIN_PERCENT = 60;
 	private bool _appIsPaused = false,
 				_appIsStarted = false,
-				_gameIsWon = false,
 				_gameIsOver = false,
 				_tapToPlay = false;
 
-
 	void Start() {
-		initStates();
+		_startGame.SetActive(true);
 
 		_fieldObj = new Field(_land, _sea);
+		_fieldObj.init();
+
 		_playerObj = new PlayerCtrl(_player, _fieldObj, _track);
+		_playerObj.init();
+
 		_seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj, _playerObj);
+		_seaEnemies.Add(_seaEnemyObj);
+		foreach(SeaEnemy seaEnemy in _seaEnemies)
+			_seaEnemyObj.init();
+
 		_landEnemyObj = new LandEnemy(_landEnemy, _fieldObj, _playerObj);
+		_landEnemyObj.init();
+
 		_info = new InfoCtrl(_score, _xn, _full, _time, _fieldObj, _playerObj);
+
+		_nextLevelObj = new NextLevel(_nextLevel, _fieldObj);
 	}
 
 	void Update() {
-		if (!_gameIsOver && !_gameIsWon && !_appIsPaused && _appIsStarted) {
+		if (!_gameIsOver && !_nextLevelObj.nextLevel() && !_appIsPaused && _appIsStarted) {
 			_playerObj.move();
 		}
 	}
@@ -74,8 +85,9 @@ public class GameController : MonoBehaviour {
 
 		updateStates();
 
-		if (!_gameIsOver && !_gameIsWon && !_appIsPaused && _appIsStarted) {
-			_seaEnemyObj.move();
+		if (!_gameIsOver && !_nextLevelObj.nextLevel() && !_appIsPaused && _appIsStarted) {
+			foreach (SeaEnemy seaEnemy in _seaEnemies)
+				seaEnemy.move();
 			_landEnemyObj.move();
 		}
 
@@ -83,30 +95,20 @@ public class GameController : MonoBehaviour {
 			Application.Quit();
 	}
 
-	void initStates() {
-		_statePanel.SetActive(true);
-		_startGame.SetActive(true);
-	}
-
 	void updateStates() {
 		if (_appIsPaused) {
-			_statePanel.SetActive(true);
 			_paused.SetActive(true);
 		}
-		if (_gameIsWon) {
-			_statePanel.SetActive(true);
-			_nextLevel.SetActive(true);
+		else if(!_appIsPaused) {
+			_paused.SetActive(false);
 		}
 		if (_gameIsOver) {
-			_statePanel.SetActive(true);
 			_gameOver.SetActive(true);
 		}
-		
 	}
 
 	public void StartGame() {
 		_startGame.SetActive(false);
-		_statePanel.SetActive(false);
 
 		_appIsStarted = true;
 	}
@@ -120,25 +122,46 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
+	public void closePanel() {
+		_fieldObj.destroy();
+		_fieldObj.init();
+		_fieldObj.fillTrackArea();
+
+		_playerObj.destroy();
+		_playerObj.init();
+
+		_landEnemyObj.destroy();
+		_landEnemyObj.init();
+
+		SeaEnemy seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj, _playerObj);
+		_seaEnemies.Add(seaEnemyObj);
+		foreach (SeaEnemy seaEnemy in _seaEnemies) {
+			seaEnemy.destroy();
+			seaEnemy.init();
+		}
+
+		_nextLevelObj.closePanel();
+	}
+
 	public void GameOver() {
-		if ((_playerObj.IsSelfCrosed() || _seaEnemyObj.isHitTrackOrXonix() || _landEnemyObj.isHitXonix()) && !_gameIsOver) {
+		if ((_playerObj.IsSelfCrosed() || _seaEnemyObj.EnemiesHitTrackOrXonix(_seaEnemies) || _landEnemyObj.isHitXonix()) && !_gameIsOver) {
 			_gameIsOver = true;
 			_playerObj.decreaseLives();
 
 			print("game over");
 
-			if (_playerObj.getCountLives() > 0) {
+			if (_playerObj.getCountLives() < 0) {
 				print("You lose!");
 			}
 		}
-		if (_fieldObj.getSeaPercent() >= WIN_PERCENT && !_gameIsWon) {
-			_gameIsWon = true;
-
+		if (_fieldObj.getSeaPercent() >= WIN_PERCENT && !_nextLevelObj.nextLevel()) {
 			print("You win!");
+
+			_nextLevelObj.displayPanel();
 		}
 	}
 
-	public void OnApplicationQuit() {
+	void OnApplicationQuit() {
 		Application.Quit();
 	}
 }

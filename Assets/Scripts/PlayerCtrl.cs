@@ -3,6 +3,7 @@
 public class PlayerCtrl : MonoBehaviour {
 	private GameObject _player;
 	private GameObject _track;
+	private GameObject _playerInLand;
 	private Field _field;
 
 	private int _x,
@@ -19,17 +20,21 @@ public class PlayerCtrl : MonoBehaviour {
 	public PlayerCtrl(GameObject playerInLand, Field field, GameObject track) {
 		_field = field;
 		_track = track;
-		init(playerInLand);
+		_playerInLand = playerInLand;
 	}
 
-	public void init(GameObject playerInLand) {
+	public void init() {
 		_y = Field.HEIGHT - 1;
 		_x = Field.WIDTH / 2 - 1;
 		_z = 0;
 		_direction = 0;
 		_isWater = false;
 
-		_player = Instantiate(playerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
+		_player = Instantiate(_playerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
+	}
+
+	public void destroy() {
+		Destroy(_player);
 	}
 
 	public void move() {

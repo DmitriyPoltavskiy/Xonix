@@ -15,10 +15,9 @@ public class LandEnemy : MonoBehaviour {
 		_field = field;
 		_player = player;
 		_landEnemy = landEnemy;
-		init();
 	}
 
-	void init() {
+	public void init() {
 		do {
 			_x = Random.Range(0, Field.WIDTH - 1);
 			_y = Random.Range(0, Field.HEIGHT / 2);
@@ -33,6 +32,10 @@ public class LandEnemy : MonoBehaviour {
 		_dy = Random.Range(0, 1) == 0 ? 1 : -1;
 
 		_landEnemy = Instantiate(_landEnemy, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
+	}
+
+	public void destroy() {
+		Destroy(_landEnemy);
 	}
 
 	void UpdateDirection() {
