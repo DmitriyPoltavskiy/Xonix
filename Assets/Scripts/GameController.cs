@@ -32,6 +32,17 @@ public class GameController : MonoBehaviour {
 	private GameObject _time;
 	private InfoCtrl _info;
 
+	[SerializeField]
+	private GameObject _statePanel;
+	[SerializeField]
+	private GameObject _startGame;
+	[SerializeField]
+	private GameObject _paused;
+	[SerializeField]
+	private GameObject _nextLevel;
+	[SerializeField]
+	private GameObject _gameOver;
+
 	private const int WIN_PERCENT = 75;
 	private bool _appIsPaused = false,
 				_appIsStarted = false,
@@ -41,6 +52,8 @@ public class GameController : MonoBehaviour {
 
 
 	void Start() {
+		initStates();
+
 		_fieldObj = new Field(_land, _sea);
 		_playerObj = new PlayerCtrl(_player, _fieldObj, _track);
 		_seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj, _playerObj);
@@ -59,6 +72,8 @@ public class GameController : MonoBehaviour {
 
 		_info.update();
 
+		updateStates();
+
 		if (!_gameIsOver && !_gameIsWon && !_appIsPaused && _appIsStarted) {
 			_seaEnemyObj.move();
 			_landEnemyObj.move();
@@ -68,11 +83,41 @@ public class GameController : MonoBehaviour {
 			Application.Quit();
 	}
 
+	void initStates() {
+		_statePanel.SetActive(true);
+		_startGame.SetActive(true);
+	}
+
+	void updateStates() {
+		if (_appIsPaused) {
+			_statePanel.SetActive(true);
+			_paused.SetActive(true);
+		}
+		if (_gameIsWon) {
+			_statePanel.SetActive(true);
+			_nextLevel.SetActive(true);
+		}
+		if (_gameIsOver) {
+			_statePanel.SetActive(true);
+			_gameOver.SetActive(true);
+		}
+		
+	}
+
 	public void StartGame() {
-		foreach (GameObject tapToPlay in GameObject.FindGameObjectsWithTag("TapToPlay"))
-			tapToPlay.SetActive(false);
+		_startGame.SetActive(false);
+		_statePanel.SetActive(false);
 
 		_appIsStarted = true;
+	}
+
+	public void OnApplicationPaused() {
+		if (!_appIsPaused) {
+			_appIsPaused = true;
+		}
+		else {
+			_appIsPaused = false;
+		}
 	}
 
 	public void GameOver() {
@@ -95,16 +140,5 @@ public class GameController : MonoBehaviour {
 
 	public void OnApplicationQuit() {
 		Application.Quit();
-	}
-
-	public void OnApplicationPaused() {
-		if(!_appIsPaused) {
-			Time.timeScale = 0;
-			_appIsPaused = true;
-		}
-		else {
-			Time.timeScale = 1;
-			_appIsPaused = false;
-		}
 	}
 }
