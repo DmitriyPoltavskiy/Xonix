@@ -10,7 +10,6 @@ public class GameController : MonoBehaviour {
 	[SerializeField]
 	private GameObject _seaEnemy;
 	private SeaEnemy _seaEnemyObj;
-	private SeaEnemy _seaEnemyObj2;
 
 	[SerializeField]
 	private GameObject _landEnemy;
@@ -35,6 +34,7 @@ public class GameController : MonoBehaviour {
 
 	private const int WIN_PERCENT = 75;
 	private bool _appIsPaused = false,
+				_appIsStarted = false,
 				_gameIsWon = false,
 				_gameIsOver = false,
 				_tapToPlay = false;
@@ -42,29 +42,26 @@ public class GameController : MonoBehaviour {
 
 	void Start() {
 		_fieldObj = new Field(_land, _sea);
-		_playerObj = new PlayerCtrl(_player, _fieldObj);
+		_playerObj = new PlayerCtrl(_player, _fieldObj, _track);
 		_seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj, _playerObj);
-		_seaEnemyObj2 = new SeaEnemy(_seaEnemy, _fieldObj, _playerObj);
 		_landEnemyObj = new LandEnemy(_landEnemy, _fieldObj, _playerObj);
 		_info = new InfoCtrl(_score, _xn, _full, _time, _fieldObj, _playerObj);
-
-		//Time.timeScale = 0;
 	}
 
 	void Update() {
-		if (!_gameIsOver) {
-			_playerObj.move(_track);
+		if (!_gameIsOver && !_gameIsWon && !_appIsPaused && _appIsStarted) {
+			_playerObj.move();
 		}
 	}
 
 	void FixedUpdate () {
 		GameOver();
 
-		if (!_gameIsOver) {
+		_info.update();
+
+		if (!_gameIsOver && !_gameIsWon && !_appIsPaused && _appIsStarted) {
 			_seaEnemyObj.move();
-			_seaEnemyObj2.move();
 			_landEnemyObj.move();
-			_info.update();
 		}
 
 		if (Input.GetKeyDown(KeyCode.Escape))
@@ -72,36 +69,25 @@ public class GameController : MonoBehaviour {
 	}
 
 	public void StartGame() {
-		Time.timeScale = 1;
-
-		foreach(GameObject tapToPlay in GameObject.FindGameObjectsWithTag("TapToPlay"))
+		foreach (GameObject tapToPlay in GameObject.FindGameObjectsWithTag("TapToPlay"))
 			tapToPlay.SetActive(false);
+
+		_appIsStarted = true;
 	}
 
 	public void GameOver() {
-		if ((_playerObj.IsSelfCrosed() || _seaEnemyObj.isHitTrackOrXonix() || _seaEnemyObj2.isHitTrackOrXonix() || _landEnemyObj.isHitXonix()) && !_gameIsOver) {
+		if ((_playerObj.IsSelfCrosed() || _seaEnemyObj.isHitTrackOrXonix() || _landEnemyObj.isHitXonix()) && !_gameIsOver) {
 			_gameIsOver = true;
 			_playerObj.decreaseLives();
-
-			// --> stop game
-			_playerObj.setDirection(0);
-			Time.timeScale = 0;
-			// <--
 
 			print("game over");
 
 			if (_playerObj.getCountLives() > 0) {
 				print("You lose!");
-				Time.timeScale = 0;
 			}
 		}
 		if (_fieldObj.getSeaPercent() >= WIN_PERCENT && !_gameIsWon) {
 			_gameIsWon = true;
-
-			// --> stop game
-			_playerObj.setDirection(0);
-			Time.timeScale = 0;
-			// <--
 
 			print("You win!");
 		}

@@ -2,6 +2,7 @@
 
 public class PlayerCtrl : MonoBehaviour {
 	private GameObject _player;
+	private GameObject _track;
 	private Field _field;
 
 	private int _x,
@@ -15,13 +16,14 @@ public class PlayerCtrl : MonoBehaviour {
 				_inLand,
 				_isSelfCross;
 
-	public PlayerCtrl(GameObject playerInLand, Field field) {
+	public PlayerCtrl(GameObject playerInLand, Field field, GameObject track) {
 		_field = field;
+		_track = track;
 		init(playerInLand);
 	}
 
 	public void init(GameObject playerInLand) {
-		_y = Field.HEIGHT;
+		_y = Field.HEIGHT - 1;
 		_x = Field.WIDTH / 2 - 1;
 		_z = 0;
 		_direction = 0;
@@ -30,7 +32,7 @@ public class PlayerCtrl : MonoBehaviour {
 		_player = Instantiate(playerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
-	public void move(GameObject Track) {
+	public void move() {
 		_direction = getDirection();
 
 		if (_direction == 2) _x--;
@@ -54,7 +56,7 @@ public class PlayerCtrl : MonoBehaviour {
 		}
 		if (_field.field[_x, _y].tag == "Sea") {
 			_isWater = true;
-			_field.field[_x, _y] = Instantiate(Track, new Vector3(_x, _y, 10), Quaternion.identity);
+			_field.field[_x, _y] = Instantiate(_track, new Vector3(_x, _y, 10), Quaternion.identity);
 		}
 	}
 

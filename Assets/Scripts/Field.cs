@@ -13,9 +13,9 @@ public class Field : MonoBehaviour {
 
 	public GameObject[,] field = new GameObject[WIDTH, HEIGHT];
 
-	public  Field(GameObject Land, GameObject Sea) {
-		_land = Land;
-		_sea = Sea;
+	public Field(GameObject land, GameObject sea) {
+		_land = land;
+		_sea = sea;
 		init();
 	}
 
@@ -77,5 +77,4 @@ public class Field : MonoBehaviour {
 	public int getScore() {
 		return _score;
 	}
-
 }
