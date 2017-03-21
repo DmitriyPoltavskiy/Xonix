@@ -9,17 +9,19 @@ public class SeaEnemy : MonoBehaviour {
 				_z;
 
 	private GameObject _seaEnemy;
+	private List<SeaEnemy> _seaEnemies;
 	private GameObject _seaEnemyPrefab;
 	private Field _field;
 	private PlayerCtrl _player;
 
-	public SeaEnemy(GameObject seaEnemy, Field field, PlayerCtrl player) {
+	public SeaEnemy(GameObject seaEnemy, Field field) {
 		_seaEnemyPrefab = seaEnemy;
 		_field = field;
-		_player = player;
 	}
 
-	public void init() {
+	public void init(PlayerCtrl player) {
+		_player = player;
+
 		_x = Random.Range(2, Field.WIDTH - 2);
 		_y = Random.Range(2, Field.HEIGHT - 2);
 
@@ -27,6 +29,10 @@ public class SeaEnemy : MonoBehaviour {
 		_dy = Random.Range(0, 1) == 0 ? 1 : -1;
 
 		_seaEnemy = Instantiate(_seaEnemyPrefab, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
+	}
+
+	public void initSeaEnemies(List<SeaEnemy> seaEnemies) {
+		_seaEnemies = seaEnemies;
 	}
 
 	public void destroy() {
@@ -54,13 +60,26 @@ public class SeaEnemy : MonoBehaviour {
 		return false;
 	}
 
-	public bool EnemiesHitTrackOrXonix(List<SeaEnemy> seaEnemies) {
-		foreach(SeaEnemy seaEnemy in seaEnemies) {
-			if (seaEnemy.isHitTrackOrXonix())
-				return true;
-			else
-				return false;
-		}
-		return true;
+	public bool EnemiesHitTrackOrXonix() {
+		for (int i = 0; i < _seaEnemies.Count; i++)
+			if (_seaEnemies[i].isHitTrackOrXonix())
+				return _seaEnemies[i].isHitTrackOrXonix();
+
+		//foreach (SeaEnemy seaEnemy in _seaEnemies)
+		//	if (seaEnemy.isHitTrackOrXonix())
+		//		return true;
+		return false;
+	}
+
+	public int getSeaEnemiesCount() {
+		return _seaEnemies.Count;
+	}
+
+	public int getX() {
+		return _x;
+	}
+
+	public int getY() {
+		return _y;
 	}
 }

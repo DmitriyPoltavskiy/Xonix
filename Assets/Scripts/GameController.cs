@@ -2,6 +2,10 @@
 using UnityEngine;
 
 public class GameController : MonoBehaviour {
+
+	float _nextMoveTime = 0,
+		  _deltaMoveTime = 0.02f;
+
 	[SerializeField]
 	private GameObject _player;
 	[SerializeField]
@@ -27,6 +31,8 @@ public class GameController : MonoBehaviour {
 	[SerializeField]
 	private GameObject _score;
 	[SerializeField]
+	private GameObject _lvl;
+	[SerializeField]
 	private GameObject _xn;
 	[SerializeField]
 	private GameObject _full;
@@ -44,10 +50,11 @@ public class GameController : MonoBehaviour {
 	private GameObject _nextLevel;
 	private NextLevel _nextLevelObj;
 
-	private const int WIN_PERCENT = 60;
+	private GameOver _gameOverObj;
+
 	private bool _appIsPaused = false,
 				_appIsStarted = false,
-				_gameIsOver = false,
+				_slow = false,
 				_tapToPlay = false;
 
 	void Start() {
@@ -56,44 +63,68 @@ public class GameController : MonoBehaviour {
 		_fieldObj = new Field(_land, _sea);
 		_fieldObj.init();
 
-		_playerObj = new PlayerCtrl(_player, _fieldObj, _track);
+		_seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj);
+		_seaEnemies.Add(_seaEnemyObj);
+		_seaEnemyObj.initSeaEnemies(_seaEnemies);
+
+		_playerObj = new PlayerCtrl(_player, _fieldObj, _track, _seaEnemies);
 		_playerObj.init();
 
-		_seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj, _playerObj);
-		_seaEnemies.Add(_seaEnemyObj);
-		foreach(SeaEnemy seaEnemy in _seaEnemies)
-			_seaEnemyObj.init();
+		_seaEnemyObj.init(_playerObj);
 
 		_landEnemyObj = new LandEnemy(_landEnemy, _fieldObj, _playerObj);
 		_landEnemyObj.init();
 
-		_info = new InfoCtrl(_score, _xn, _full, _time, _fieldObj, _playerObj);
+		_info = new InfoCtrl(_score, _lvl, _xn, _full, _time, _fieldObj, _seaEnemyObj, _playerObj);
 
 		_nextLevelObj = new NextLevel(_nextLevel, _fieldObj);
+
+		_gameOverObj = new GameOver(_gameOver, _playerObj, _seaEnemyObj, _seaEnemies, _landEnemyObj);
 	}
 
 	void Update() {
-		if (!_gameIsOver && !_nextLevelObj.nextLevel() && !_appIsPaused && _appIsStarted) {
-			_playerObj.move();
-		}
-	}
+		_playerObj.getDirection();
 
-	void FixedUpdate () {
-		GameOver();
+		while (_nextMoveTime <= Time.time) {
 
-		_info.update();
+			_nextLevelObj.wonLevel();
 
-		updateStates();
+			_gameOverObj.gameOver();
 
-		if (!_gameIsOver && !_nextLevelObj.nextLevel() && !_appIsPaused && _appIsStarted) {
-			foreach (SeaEnemy seaEnemy in _seaEnemies)
-				seaEnemy.move();
-			_landEnemyObj.move();
+			_info.update();
+
+			updateStates();
+
+			_nextMoveTime = Time.time + _deltaMoveTime;
+			if (!_gameOverObj.getGameIsOver() && !_nextLevelObj.nextLevel() && !_appIsPaused && _appIsStarted) {
+				_playerObj.move();
+
+				foreach (SeaEnemy seaEnemy in _seaEnemies) {
+					seaEnemy.move();
+				}
+
+				_landEnemyObj.move();
+				_slow = true;
+			}
 		}
 
 		if (Input.GetKeyDown(KeyCode.Escape))
 			Application.Quit();
 	}
+
+	//void FixedUpdate() {
+	//	if (!_gameOverObj.getGameIsOver() && !_nextLevelObj.nextLevel() && !_appIsPaused && _appIsStarted) {
+	//		//_playerObj.move();
+	//		//if (!_slow) {
+	//		//	foreach (SeaEnemy seaEnemy in _seaEnemies)
+	//		//		seaEnemy.move();
+	//		//	_landEnemyObj.move();
+	//		//	_slow = true;
+	//		//}
+	//		//else
+	//		//	_slow = false;
+	//	}
+	//}
 
 	void updateStates() {
 		if (_appIsPaused) {
@@ -101,9 +132,6 @@ public class GameController : MonoBehaviour {
 		}
 		else if(!_appIsPaused) {
 			_paused.SetActive(false);
-		}
-		if (_gameIsOver) {
-			_gameOver.SetActive(true);
 		}
 	}
 
@@ -123,41 +151,62 @@ public class GameController : MonoBehaviour {
 	}
 
 	public void closePanel() {
-		_fieldObj.destroy();
-		_fieldObj.init();
-		_fieldObj.fillTrackArea();
+		if (_gameOver.activeSelf) {
+			if (_playerObj.getCountLives() >= 0) {
+				_fieldObj.clearTrack();
+				_gameOverObj.closePanel();
 
-		_playerObj.destroy();
-		_playerObj.init();
+				_playerObj.destroy();
+				_playerObj.init();
 
-		_landEnemyObj.destroy();
-		_landEnemyObj.init();
+				_landEnemyObj.destroy();
+				_landEnemyObj.init();
+			}
+			else {
+				//_gameOverObj.SetGameIsOver(true);
+				_gameOverObj.closePanel();
+				//_startGame.SetActive(true);
 
-		SeaEnemy seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj, _playerObj);
-		_seaEnemies.Add(seaEnemyObj);
-		foreach (SeaEnemy seaEnemy in _seaEnemies) {
-			seaEnemy.destroy();
-			seaEnemy.init();
-		}
 
-		_nextLevelObj.closePanel();
-	}
+				_fieldObj.destroy();
+				_fieldObj.init();
+				_fieldObj.fillTrackArea(_seaEnemies);
 
-	public void GameOver() {
-		if ((_playerObj.IsSelfCrosed() || _seaEnemyObj.EnemiesHitTrackOrXonix(_seaEnemies) || _landEnemyObj.isHitXonix()) && !_gameIsOver) {
-			_gameIsOver = true;
-			_playerObj.decreaseLives();
+				_playerObj.destroy();
+				_playerObj.init();
+				_playerObj.updateSelfCrosed();
+				_playerObj.setCountLives(3);
 
-			print("game over");
+				_landEnemyObj.destroy();
+				_landEnemyObj.init();
 
-			if (_playerObj.getCountLives() < 0) {
-				print("You lose!");
+				foreach (SeaEnemy seaEnemy in _seaEnemies) {
+					seaEnemy.isHitTrackOrXonix();
+					if (_seaEnemies.Count > 1)
+						seaEnemy.destroy();
+				}
 			}
 		}
-		if (_fieldObj.getSeaPercent() >= WIN_PERCENT && !_nextLevelObj.nextLevel()) {
-			print("You win!");
 
-			_nextLevelObj.displayPanel();
+		if (_nextLevel.activeSelf) {
+			_fieldObj.destroy();
+			_fieldObj.init();
+			_fieldObj.fillTrackArea(_seaEnemies);
+
+			_playerObj.destroy();
+			_playerObj.init();
+
+			_landEnemyObj.destroy();
+			_landEnemyObj.init();
+
+			SeaEnemy seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj);
+			_seaEnemies.Add(seaEnemyObj);
+			foreach (SeaEnemy seaEnemy in _seaEnemies) {
+				seaEnemy.destroy();
+				seaEnemy.init(_playerObj);
+			}
+
+			_nextLevelObj.closePanel();
 		}
 	}
 

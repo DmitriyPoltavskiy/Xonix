@@ -1,9 +1,11 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerCtrl : MonoBehaviour {
 	private GameObject _player;
 	private GameObject _track;
 	private GameObject _playerInLand;
+	List<SeaEnemy> _seaEnemies;
 	private Field _field;
 
 	private int _x,
@@ -11,16 +13,18 @@ public class PlayerCtrl : MonoBehaviour {
 				_z,
 				_direction,
 				_count_lives = 3;
+	
 
 	private bool _isWater,
 				_inWater,
 				_inLand,
 				_isSelfCross;
 
-	public PlayerCtrl(GameObject playerInLand, Field field, GameObject track) {
+	public PlayerCtrl(GameObject playerInLand, Field field, GameObject track, List<SeaEnemy> seaEnemies) {
 		_field = field;
 		_track = track;
 		_playerInLand = playerInLand;
+		_seaEnemies = seaEnemies;
 	}
 
 	public void init() {
@@ -38,8 +42,6 @@ public class PlayerCtrl : MonoBehaviour {
 	}
 
 	public void move() {
-		_direction = getDirection();
-
 		if (_direction == 2) _x--;
 		if (_direction == -2) _x++;
 		if (_direction == 1) _y++;
@@ -57,15 +59,16 @@ public class PlayerCtrl : MonoBehaviour {
 		if (_field.field[_x, _y].tag == "Land" && _isWater) {
 			_direction = 0;
 			_isWater = false;
-			_field.fillTrackArea();
+			_field.fillTrackArea(_seaEnemies);
+			_field.clearTrack();
 		}
-		if (_field.field[_x, _y].tag == "Sea") {
+		if (_field.field[_x, _y].tag == "Sea" /*&& !_isWater*/) {
 			_isWater = true;
 			_field.field[_x, _y] = Instantiate(_track, new Vector3(_x, _y, 10), Quaternion.identity);
 		}
 	}
 
-	int getDirection() {
+	public void getDirection() {
 		if (Input.touchCount > 0 && Input.touchCount < 2 && Input.GetTouch(0).phase == TouchPhase.Moved) {
 			Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
 
@@ -95,16 +98,18 @@ public class PlayerCtrl : MonoBehaviour {
 			_direction = 1;
 		if (Input.GetKeyDown(KeyCode.DownArrow))
 			_direction = -1;
-
-		return _direction;
 	}
 
 	public void setDirection(int direction) {
 		_direction = direction;
 	}
 
-	public bool IsSelfCrosed() {
+	public bool isSelfCrosed() {
 		return _isSelfCross;
+	}
+
+	public void updateSelfCrosed() {
+		_isSelfCross = _field.field[_x, _y].tag == "Track";
 	}
 
 	public int getX() {
@@ -121,5 +126,9 @@ public class PlayerCtrl : MonoBehaviour {
 
 	public int getCountLives() {
 		return _count_lives;
+	}
+
+	public void setCountLives(int lives) {
+		_count_lives = lives;
 	}
 }

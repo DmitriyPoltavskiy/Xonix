@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class NextLevel : MonoBehaviour {
+	private const int WIN_PERCENT = 60;
 	private bool _nextLevel = false;
 	private GameObject _panel;
 	private Field _field;
@@ -12,13 +13,21 @@ public class NextLevel : MonoBehaviour {
 		_field = field;
 	}
 
+	public void wonLevel() {
+		if(_field.getSeaPercent() >= WIN_PERCENT && !_nextLevel) {
+			_panel.SetActive(true);
+			_nextLevel = true;
+		}
+		//displayPanel();
+	}
+
 	public void displayPanel() {
-		_panel.SetActive(true);
+		//_panel.SetActive(true);
 		_nextLevel = true;
 	}
 
 	public void closePanel() {
-		_field.getSeaPercent();
+		//_field.getSeaPercent();
 		_panel.SetActive(false);
 		_nextLevel = false;
 	}
