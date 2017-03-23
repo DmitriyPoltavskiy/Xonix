@@ -5,6 +5,7 @@ public class InfoCtrl : MonoBehaviour {
 	private Field _field;
 	private PlayerCtrl _player;
 	private SeaEnemy _seaEnemy;
+	private Timer _timer;
 	private GameObject _score;
 	private GameObject _lvl;
 	private GameObject _xn;
@@ -18,7 +19,8 @@ public class InfoCtrl : MonoBehaviour {
 					GameObject time, 
 					Field field, 
 					SeaEnemy seaEnemy,
-					PlayerCtrl player) {
+					PlayerCtrl player,
+					Timer timer) {
 
 		_field = field;
 		_player = player;
@@ -28,6 +30,7 @@ public class InfoCtrl : MonoBehaviour {
 		_xn = xn;
 		_full = full;
 		_time = time;
+		_timer = timer;
 
 		init();
 	}
@@ -37,17 +40,16 @@ public class InfoCtrl : MonoBehaviour {
 		_lvl.GetComponent<Text>().text = "Lvl: " + _seaEnemy.getSeaEnemiesCount();
 		_xn.GetComponent<Text>().text = "Xn: " + _player.getCountLives();
 		_full.GetComponent<Text>().text = "Full: " + 0 + "%";
-		_time.GetComponent<Text>().text = "Time: " + 0;
+		_time.GetComponent<Text>().text = "Time: " + _timer.GetTime();
 	}
 
 	public void update() {
-		if(_player.getCountLives() == -1)
-			_xn.GetComponent<Text>().text = "Xn: " + 0;
-		else
-			_xn.GetComponent<Text>().text = "Xn: " + _player.getCountLives();
+		int lives = _player.getCountLives() == -1 ? 0 : _player.getCountLives();
 
+		_xn.GetComponent<Text>().text = "Xn: " + lives;
 		_score.GetComponent<Text>().text = "Score: " + _field.getScore();
 		_lvl.GetComponent<Text>().text = "Lvl: " + _seaEnemy.getSeaEnemiesCount();
 		_full.GetComponent<Text>().text = "Full: " + (int)_field.getSeaPercent() + "%";
+		_time.GetComponent<Text>().text = "Time: " + (int)_timer.GetTime();
 	}
 }

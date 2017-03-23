@@ -5,6 +5,7 @@ public class PlayerCtrl : MonoBehaviour {
 	private GameObject _player;
 	private GameObject _track;
 	private GameObject _playerInLand;
+	private GameObject _playerInSea;
 	List<SeaEnemy> _seaEnemies;
 	private Field _field;
 
@@ -20,11 +21,14 @@ public class PlayerCtrl : MonoBehaviour {
 				_inLand,
 				_isSelfCross;
 
-	public PlayerCtrl(GameObject playerInLand, Field field, GameObject track, List<SeaEnemy> seaEnemies) {
+	public PlayerCtrl(GameObject playerInLand, GameObject playerInSea, Field field, GameObject track, List<SeaEnemy> seaEnemies) {
 		_field = field;
 		_track = track;
 		_playerInLand = playerInLand;
 		_seaEnemies = seaEnemies;
+		_playerInSea = playerInSea;
+
+		init();
 	}
 
 	public void init() {
@@ -57,13 +61,24 @@ public class PlayerCtrl : MonoBehaviour {
 		_isSelfCross = _field.field[_x, _y].tag == "Track";
 
 		if (_field.field[_x, _y].tag == "Land" && _isWater) {
+
+			destroy();
+			_player = Instantiate(_playerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
+
 			_direction = 0;
 			_isWater = false;
-			_field.fillTrackArea(_seaEnemies);
-			_field.clearTrack();
+			if(Time.timeScale != 0) {
+				_field.fillTrackArea(_seaEnemies);
+				_field.clearTrack();
+			}
 		}
-		if (_field.field[_x, _y].tag == "Sea" /*&& !_isWater*/) {
+		if (_field.field[_x, _y].tag == "Sea") {
 			_isWater = true;
+
+			destroy();
+			_player = Instantiate(_playerInSea, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
+
+			Destroy(_field.field[_x, _y]);
 			_field.field[_x, _y] = Instantiate(_track, new Vector3(_x, _y, 10), Quaternion.identity);
 		}
 	}

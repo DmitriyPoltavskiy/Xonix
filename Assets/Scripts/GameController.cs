@@ -2,12 +2,13 @@
 using UnityEngine;
 
 public class GameController : MonoBehaviour {
-
 	float _nextMoveTime = 0,
-		  _deltaMoveTime = 0.02f;
+		  _deltaMoveTime = 0.04f;
 
 	[SerializeField]
-	private GameObject _player;
+	private GameObject _playerInLand;
+	[SerializeField]
+	private GameObject _playerInSea;
 	[SerializeField]
 	private GameObject _track;
 	private PlayerCtrl _playerObj;
@@ -52,13 +53,13 @@ public class GameController : MonoBehaviour {
 
 	private GameOver _gameOverObj;
 
-	private bool _appIsPaused = false,
-				_appIsStarted = false,
-				_slow = false,
-				_tapToPlay = false;
+	private Timer _timerObj;
 
 	void Start() {
+		Time.timeScale = 0;
 		_startGame.SetActive(true);
+
+		_timerObj = new Timer();
 
 		_fieldObj = new Field(_land, _sea);
 		_fieldObj.init();
@@ -67,86 +68,54 @@ public class GameController : MonoBehaviour {
 		_seaEnemies.Add(_seaEnemyObj);
 		_seaEnemyObj.initSeaEnemies(_seaEnemies);
 
-		_playerObj = new PlayerCtrl(_player, _fieldObj, _track, _seaEnemies);
-		_playerObj.init();
+		_playerObj = new PlayerCtrl(_playerInLand, _playerInSea, _fieldObj, _track, _seaEnemies);
 
 		_seaEnemyObj.init(_playerObj);
 
 		_landEnemyObj = new LandEnemy(_landEnemy, _fieldObj, _playerObj);
-		_landEnemyObj.init();
-
-		_info = new InfoCtrl(_score, _lvl, _xn, _full, _time, _fieldObj, _seaEnemyObj, _playerObj);
 
 		_nextLevelObj = new NextLevel(_nextLevel, _fieldObj);
 
-		_gameOverObj = new GameOver(_gameOver, _playerObj, _seaEnemyObj, _seaEnemies, _landEnemyObj);
+		_info = new InfoCtrl(_score, _lvl, _xn, _full, _time, _fieldObj, _seaEnemyObj, _playerObj, _timerObj);
+
+		_gameOverObj = new GameOver(_gameOver, _playerObj, _seaEnemyObj, _seaEnemies, _landEnemyObj, _timerObj);
 	}
 
 	void Update() {
 		_playerObj.getDirection();
+		_info.update();
 
 		while (_nextMoveTime <= Time.time) {
+			_nextMoveTime = Time.time + _deltaMoveTime;
+
+
+			_playerObj.move();
+			_landEnemyObj.move();
+			foreach (SeaEnemy seaEnemy in _seaEnemies) {
+				seaEnemy.move();
+			}
 
 			_nextLevelObj.wonLevel();
-
 			_gameOverObj.gameOver();
-
-			_info.update();
-
-			updateStates();
-
-			_nextMoveTime = Time.time + _deltaMoveTime;
-			if (!_gameOverObj.getGameIsOver() && !_nextLevelObj.nextLevel() && !_appIsPaused && _appIsStarted) {
-				_playerObj.move();
-
-				foreach (SeaEnemy seaEnemy in _seaEnemies) {
-					seaEnemy.move();
-				}
-
-				_landEnemyObj.move();
-				_slow = true;
-			}
 		}
 
 		if (Input.GetKeyDown(KeyCode.Escape))
 			Application.Quit();
 	}
 
-	//void FixedUpdate() {
-	//	if (!_gameOverObj.getGameIsOver() && !_nextLevelObj.nextLevel() && !_appIsPaused && _appIsStarted) {
-	//		//_playerObj.move();
-	//		//if (!_slow) {
-	//		//	foreach (SeaEnemy seaEnemy in _seaEnemies)
-	//		//		seaEnemy.move();
-	//		//	_landEnemyObj.move();
-	//		//	_slow = true;
-	//		//}
-	//		//else
-	//		//	_slow = false;
-	//	}
-	//}
-
-	void updateStates() {
-		if (_appIsPaused) {
-			_paused.SetActive(true);
-		}
-		else if(!_appIsPaused) {
-			_paused.SetActive(false);
-		}
-	}
-
 	public void StartGame() {
+		Time.timeScale = 1;
 		_startGame.SetActive(false);
-
-		_appIsStarted = true;
 	}
 
 	public void OnApplicationPaused() {
-		if (!_appIsPaused) {
-			_appIsPaused = true;
+		if(Time.timeScale == 0) {
+			Time.timeScale = 1;
+			_paused.SetActive(false);
 		}
 		else {
-			_appIsPaused = false;
+			Time.timeScale = 0;
+			_paused.SetActive(true);
 		}
 	}
 
@@ -158,15 +127,15 @@ public class GameController : MonoBehaviour {
 
 				_playerObj.destroy();
 				_playerObj.init();
+				_playerObj.updateSelfCrosed();
 
 				_landEnemyObj.destroy();
 				_landEnemyObj.init();
+
+				_timerObj.UpdateTime();
 			}
 			else {
-				//_gameOverObj.SetGameIsOver(true);
 				_gameOverObj.closePanel();
-				//_startGame.SetActive(true);
-
 
 				_fieldObj.destroy();
 				_fieldObj.init();
@@ -180,11 +149,16 @@ public class GameController : MonoBehaviour {
 				_landEnemyObj.destroy();
 				_landEnemyObj.init();
 
-				foreach (SeaEnemy seaEnemy in _seaEnemies) {
-					seaEnemy.isHitTrackOrXonix();
-					if (_seaEnemies.Count > 1)
-						seaEnemy.destroy();
+				for (int i = _seaEnemies.Count - 1; i >= 0; i--) {
+					_seaEnemies[i].isHitTrackOrXonix();
+					if (_seaEnemies.Count > 1) {
+						_seaEnemies[i].destroy();
+						_seaEnemies.RemoveAt(i);
+					}
 				}
+
+				_timerObj.UpdateTime();
+				_fieldObj.SetScore(0);
 			}
 		}
 
@@ -207,6 +181,8 @@ public class GameController : MonoBehaviour {
 			}
 
 			_nextLevelObj.closePanel();
+
+			_timerObj.UpdateTime();
 		}
 	}
 

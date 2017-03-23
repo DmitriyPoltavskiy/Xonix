@@ -5,8 +5,8 @@ public class Field : MonoBehaviour {
 	private GameObject _land;
 	private GameObject _sea;
 
-	public const int WIDTH = 82;
-	public const int HEIGHT = 42;
+	public const int WIDTH = 72;
+	public const int HEIGHT = 38;
 
 	private int _score = 0;
 
@@ -38,7 +38,6 @@ public class Field : MonoBehaviour {
 	public void destroy() {
 		int x_start = 0;
 		int y_start = 0;
-		int z_start = 10;
 
 		int current_pos_x = x_start;
 		int current_pos_y = y_start;
@@ -49,24 +48,20 @@ public class Field : MonoBehaviour {
 	}
 
 	public void fillArea(int x, int y) {
-		if (field[x, y].tag != "Sea")
+		if (field[x, y].tag != "Sea" || field[x, y].tag == "Temp")
 			return;
 
 		field[x, y].tag = "Temp";
 
-		for (int dx = -1; dx < 2; dx++)
-			for (int dy = -1; dy < 2; dy++)
-				fillArea(x + dx, y + dy);
+		if (field[x + 1, y].tag == "Sea") fillArea(x + 1, y);
+		if (field[x - 1, y].tag == "Sea") fillArea(x - 1, y);
+		if (field[x, y + 1].tag == "Sea") fillArea(x, y + 1);
+		if (field[x, y - 1].tag == "Sea") fillArea(x, y - 1);
 	}
 
 	public void fillTrackArea(List<SeaEnemy> seaEnemies) {
 		_currentSeaArea = 0;
 
-		//foreach (SeaEnemy enemy in seaEnemies)
-		//	fillArea(enemy.getX(), enemy.getY());
-
-		//foreach (SeaEnemy enemy in seaEnemies)
-		//	fillArea(enemy.getX(), enemy.getY());
 		for (int i = 0; i < seaEnemies.Count; i++) {
 			fillArea(seaEnemies[i].getX(), seaEnemies[i].getY());
 		}
@@ -74,8 +69,9 @@ public class Field : MonoBehaviour {
 		for (int y = 0; y < HEIGHT; y++)
 			for (int x = 0; x < WIDTH; x++) {
 				if (field[x, y].tag == "Track" || field[x, y].tag == "Sea") {
-					field[x, y] = Instantiate(_land, new Vector3(x, y, 10), Quaternion.identity);
-					_score += 10;
+					Destroy(field[x, y]);
+					field[x, y] = Instantiate(_land, new Vector3(x, y, 9), Quaternion.identity);
+					_score++;
 				}
 				if (field[x, y].tag == "Temp") {
 					field[x, y].tag = "Sea";
@@ -85,22 +81,15 @@ public class Field : MonoBehaviour {
 	}
 
 	public void clearTrack() {
-		var track = GameObject.FindGameObjectsWithTag("Track");
-		for (int i = 0; i < track.Length; i++) {
-			Destroy(track[i]);
-		}
-		for (int y = 0; y < HEIGHT; y++)
-			for (int x = 0; x < WIDTH; x++)
-				if (field[x, y].tag == "Track")
+		for (int y = 0; y < HEIGHT; y++) {
+			for (int x = 0; x < WIDTH; x++) {
+				if (field[x, y].tag == "Track") {
+					Destroy(field[x, y]);
 					field[x, y] = Instantiate(_sea, new Vector3(x, y, 10), Quaternion.identity);
+				}
+			}
+		}
 	}
-
-	//public void clearTrack() {
-	//	for (int y = 0; y < HEIGHT; y++)
-	//		for (int x = 0; x < WIDTH; x++)
-	//			if (field[x, y].tag == "Track")
-	//				field[x, y] = Instantiate(_sea, new Vector3(x, y, 10), Quaternion.identity);
-	//}
 
 	public float getSeaPercent() {
 		float seaArea = (WIDTH - 4) * (HEIGHT - 4);
@@ -112,5 +101,9 @@ public class Field : MonoBehaviour {
 
 	public int getScore() {
 		return _score;
+	}
+
+	public void SetScore(int score) {
+		_score = score;
 	}
 }

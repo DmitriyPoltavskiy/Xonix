@@ -15,12 +15,14 @@ public class LandEnemy : MonoBehaviour {
 		_field = field;
 		_player = player;
 		_landEnemy = landEnemy;
+
+		init();
 	}
 
 	public void init() {
 		do {
-			_x = Random.Range(0, Field.WIDTH - 1);
-			_y = Random.Range(0, Field.HEIGHT / 2);
+			_x = Random.Range(2, Field.WIDTH - 2);
+			_y = Random.Range(0, 3);
 		}
 		while (
 			_x <= 0 ||
@@ -28,8 +30,8 @@ public class LandEnemy : MonoBehaviour {
 			_field.field[_x, _y].tag == "Sea"
 		);
 
-		_dx = Random.Range(0, 1) == 0 ? 1 : -1;
-		_dy = Random.Range(0, 1) == 0 ? 1 : -1;
+		_dx = Random.Range(0, 2) == 0 ? 1 : -1;
+		_dy = Random.Range(0, 2) == 0 ? 1 : -1;
 
 		_landEnemy = Instantiate(_landEnemy, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
