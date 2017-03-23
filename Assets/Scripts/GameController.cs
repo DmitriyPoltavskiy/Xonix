@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour {
 	float _nextMoveTime = 0,
-		  _deltaMoveTime = 0.04f;
+		_deltaMoveTime = 0.04f,
+		_levelDuration = 60;
 
 	[SerializeField]
 	private GameObject _playerInLand;
@@ -59,18 +60,18 @@ public class GameController : MonoBehaviour {
 		Time.timeScale = 0;
 		_startGame.SetActive(true);
 
-		_timerObj = new Timer();
+		_timerObj = new Timer(_levelDuration);
 
 		_fieldObj = new Field(_land, _sea);
-		_fieldObj.init();
+		_fieldObj.Init();
 
 		_seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj);
 		_seaEnemies.Add(_seaEnemyObj);
-		_seaEnemyObj.initSeaEnemies(_seaEnemies);
+		_seaEnemyObj.InitSeaEnemies(_seaEnemies);
 
 		_playerObj = new PlayerCtrl(_playerInLand, _playerInSea, _fieldObj, _track, _seaEnemies);
 
-		_seaEnemyObj.init(_playerObj);
+		_seaEnemyObj.Init(_playerObj);
 
 		_landEnemyObj = new LandEnemy(_landEnemy, _fieldObj, _playerObj);
 
@@ -82,21 +83,20 @@ public class GameController : MonoBehaviour {
 	}
 
 	void Update() {
-		_playerObj.getDirection();
-		_info.update();
+		_playerObj.GetDirection();
+		_info.UpdateInfo();
 
-		while (_nextMoveTime <= Time.time) {
+		while (Time.time >= _nextMoveTime) {
 			_nextMoveTime = Time.time + _deltaMoveTime;
 
-
-			_playerObj.move();
-			_landEnemyObj.move();
+			_playerObj.Move();
+			_landEnemyObj.Move();
 			foreach (SeaEnemy seaEnemy in _seaEnemies) {
-				seaEnemy.move();
+				seaEnemy.Move();
 			}
 
-			_nextLevelObj.wonLevel();
-			_gameOverObj.gameOver();
+			_nextLevelObj.WonLevel();
+			_gameOverObj.GameIsOver();
 		}
 
 		if (Input.GetKeyDown(KeyCode.Escape))
@@ -119,40 +119,40 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	public void closePanel() {
+	public void ClosePanel() {
 		if (_gameOver.activeSelf) {
-			if (_playerObj.getCountLives() >= 0) {
-				_fieldObj.clearTrack();
-				_gameOverObj.closePanel();
+			if (_playerObj.GetCountLives() > 0) {
+				_fieldObj.DeleteTrack();
+				_gameOverObj.ClosePanel();
 
-				_playerObj.destroy();
-				_playerObj.init();
-				_playerObj.updateSelfCrosed();
+				_playerObj.Destroy();
+				_playerObj.Init();
+				_playerObj.UpdateSelfCrosed();
 
-				_landEnemyObj.destroy();
-				_landEnemyObj.init();
+				_landEnemyObj.Destroy();
+				_landEnemyObj.Init();
 
 				_timerObj.UpdateTime();
 			}
 			else {
-				_gameOverObj.closePanel();
+				_gameOverObj.ClosePanel();
 
-				_fieldObj.destroy();
-				_fieldObj.init();
-				_fieldObj.fillTrackArea(_seaEnemies);
+				_fieldObj.Destroy();
+				_fieldObj.Init();
+				_fieldObj.FillTrackArea(_seaEnemies);
 
-				_playerObj.destroy();
-				_playerObj.init();
-				_playerObj.updateSelfCrosed();
-				_playerObj.setCountLives(3);
+				_playerObj.Destroy();
+				_playerObj.Init();
+				_playerObj.UpdateSelfCrosed();
+				_playerObj.SetCountLives(3);
 
-				_landEnemyObj.destroy();
-				_landEnemyObj.init();
+				_landEnemyObj.Destroy();
+				_landEnemyObj.Init();
 
 				for (int i = _seaEnemies.Count - 1; i >= 0; i--) {
-					_seaEnemies[i].isHitTrackOrXonix();
+					_seaEnemies[i].IsHitTrackOrXonix();
 					if (_seaEnemies.Count > 1) {
-						_seaEnemies[i].destroy();
+						_seaEnemies[i].Destroy();
 						_seaEnemies.RemoveAt(i);
 					}
 				}
@@ -163,24 +163,25 @@ public class GameController : MonoBehaviour {
 		}
 
 		if (_nextLevel.activeSelf) {
-			_fieldObj.destroy();
-			_fieldObj.init();
-			_fieldObj.fillTrackArea(_seaEnemies);
+			_fieldObj.Destroy();
+			_fieldObj.Init();
+			_fieldObj.FillTrackArea(_seaEnemies);
 
-			_playerObj.destroy();
-			_playerObj.init();
+			_playerObj.Destroy();
+			_playerObj.Init();
+			_playerObj.AddCountLives(1);
 
-			_landEnemyObj.destroy();
-			_landEnemyObj.init();
+			_landEnemyObj.Destroy();
+			_landEnemyObj.Init();
 
 			SeaEnemy seaEnemyObj = new SeaEnemy(_seaEnemy, _fieldObj);
 			_seaEnemies.Add(seaEnemyObj);
 			foreach (SeaEnemy seaEnemy in _seaEnemies) {
-				seaEnemy.destroy();
-				seaEnemy.init(_playerObj);
+				seaEnemy.Destroy();
+				seaEnemy.Init(_playerObj);
 			}
 
-			_nextLevelObj.closePanel();
+			_nextLevelObj.ClosePanel();
 
 			_timerObj.UpdateTime();
 		}

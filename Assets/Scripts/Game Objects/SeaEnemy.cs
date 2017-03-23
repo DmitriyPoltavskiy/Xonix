@@ -19,7 +19,7 @@ public class SeaEnemy : MonoBehaviour {
 		_field = field;
 	}
 
-	public void init(PlayerCtrl player) {
+	public void Init(PlayerCtrl player) {
 		_player = player;
 
 		_x = Random.Range(2, Field.WIDTH - 2);
@@ -31,11 +31,11 @@ public class SeaEnemy : MonoBehaviour {
 		_seaEnemy = Instantiate(_seaEnemyPrefab, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
-	public void initSeaEnemies(List<SeaEnemy> seaEnemies) {
+	public void InitSeaEnemies(List<SeaEnemy> seaEnemies) {
 		_seaEnemies = seaEnemies;
 	}
 
-	public void destroy() {
+	public void Destroy() {
 		Destroy(_seaEnemy);
 	}
 
@@ -44,36 +44,36 @@ public class SeaEnemy : MonoBehaviour {
 		if (_field.field[_x, _y + _dy].tag == "Land") _dy = -_dy;
 	}
 
-	public void move() {
+	public void Move() {
 		UpdateDirection();
 		_x += _dx;
 		_y += _dy;
 		_seaEnemy.transform.position = new Vector3(_x, _y, _z);
 	}
 
-	public bool isHitTrackOrXonix() {
+	public bool IsHitTrackOrXonix() {
 		if (_field.field[_x + _dx, _y + _dy].tag == "Track") return true;
-		if (_x == _player.getX() && _y == _player.getY()) return true;
+		if (_x == _player.GetX() && _y == _player.GetY()) return true;
 
 		return false;
 	}
 
 	public bool EnemiesHitTrackOrXonix() {
 		for (int i = 0; i < _seaEnemies.Count; i++)
-			if (_seaEnemies[i].isHitTrackOrXonix())
-				return _seaEnemies[i].isHitTrackOrXonix();
+			if (_seaEnemies[i].IsHitTrackOrXonix())
+				return _seaEnemies[i].IsHitTrackOrXonix();
 		return false;
 	}
 
-	public int getSeaEnemiesCount() {
+	public int GetSeaEnemiesCount() {
 		return _seaEnemies.Count;
 	}
 
-	public int getX() {
+	public int GetX() {
 		return _x;
 	}
 
-	public int getY() {
+	public int GetY() {
 		return _y;
 	}
 }

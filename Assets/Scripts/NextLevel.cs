@@ -10,14 +10,14 @@ public class NextLevel : MonoBehaviour {
 		_field = field;
 	}
 
-	public void wonLevel() {
-		if(_field.getSeaPercent() >= WIN_PERCENT) {
+	public void WonLevel() {
+		if(_field.GetSeaPercent() >= WIN_PERCENT) {
 			Time.timeScale = 0;
 			_panel.SetActive(true);
 		}
 	}
 
-	public void closePanel() {
+	public void ClosePanel() {
 		Time.timeScale = 1;
 		_panel.SetActive(false);
 	}

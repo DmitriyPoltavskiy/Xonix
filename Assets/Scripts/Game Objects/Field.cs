@@ -19,7 +19,7 @@ public class Field : MonoBehaviour {
 		_sea = sea;
 	}
 
-	public void init() {
+	public void Init() {
 		int x_start = 0;
 		int y_start = 0;
 		int z_start = 10;
@@ -35,7 +35,7 @@ public class Field : MonoBehaviour {
 					Instantiate(_sea, new Vector3(current_pos_x, current_pos_y, z_start), Quaternion.identity) as GameObject;
     }
 
-	public void destroy() {
+	public void Destroy() {
 		int x_start = 0;
 		int y_start = 0;
 
@@ -47,30 +47,30 @@ public class Field : MonoBehaviour {
 				Destroy(field[x, y]);
 	}
 
-	public void fillArea(int x, int y) {
+	public void FillArea(int x, int y) {
 		if (field[x, y].tag != "Sea" || field[x, y].tag == "Temp")
 			return;
 
 		field[x, y].tag = "Temp";
 
-		if (field[x + 1, y].tag == "Sea") fillArea(x + 1, y);
-		if (field[x - 1, y].tag == "Sea") fillArea(x - 1, y);
-		if (field[x, y + 1].tag == "Sea") fillArea(x, y + 1);
-		if (field[x, y - 1].tag == "Sea") fillArea(x, y - 1);
+		if (field[x + 1, y].tag == "Sea") FillArea(x + 1, y);
+		if (field[x - 1, y].tag == "Sea") FillArea(x - 1, y);
+		if (field[x, y + 1].tag == "Sea") FillArea(x, y + 1);
+		if (field[x, y - 1].tag == "Sea") FillArea(x, y - 1);
 	}
 
-	public void fillTrackArea(List<SeaEnemy> seaEnemies) {
+	public void FillTrackArea(List<SeaEnemy> seaEnemies) {
 		_currentSeaArea = 0;
 
 		for (int i = 0; i < seaEnemies.Count; i++) {
-			fillArea(seaEnemies[i].getX(), seaEnemies[i].getY());
+			FillArea(seaEnemies[i].GetX(), seaEnemies[i].GetY());
 		}
 
 		for (int y = 0; y < HEIGHT; y++)
 			for (int x = 0; x < WIDTH; x++) {
 				if (field[x, y].tag == "Track" || field[x, y].tag == "Sea") {
 					Destroy(field[x, y]);
-					field[x, y] = Instantiate(_land, new Vector3(x, y, 9), Quaternion.identity);
+					field[x, y] = Instantiate(_land, new Vector3(x, y, 10), Quaternion.identity);
 					_score++;
 				}
 				if (field[x, y].tag == "Temp") {
@@ -80,7 +80,7 @@ public class Field : MonoBehaviour {
 			}
 	}
 
-	public void clearTrack() {
+	public void DeleteTrack() {
 		for (int y = 0; y < HEIGHT; y++) {
 			for (int x = 0; x < WIDTH; x++) {
 				if (field[x, y].tag == "Track") {
@@ -91,7 +91,7 @@ public class Field : MonoBehaviour {
 		}
 	}
 
-	public float getSeaPercent() {
+	public float GetSeaPercent() {
 		float seaArea = (WIDTH - 4) * (HEIGHT - 4);
 		float seaPercent = _currentSeaArea / seaArea * 100;
 		if (seaPercent == 0)
@@ -99,7 +99,7 @@ public class Field : MonoBehaviour {
 		return 100 - seaPercent;
 	}
 
-	public int getScore() {
+	public int GetScore() {
 		return _score;
 	}
 

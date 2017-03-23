@@ -28,10 +28,10 @@ public class PlayerCtrl : MonoBehaviour {
 		_seaEnemies = seaEnemies;
 		_playerInSea = playerInSea;
 
-		init();
+		Init();
 	}
 
-	public void init() {
+	public void Init() {
 		_y = Field.HEIGHT - 1;
 		_x = Field.WIDTH / 2 - 1;
 		_z = 0;
@@ -41,11 +41,11 @@ public class PlayerCtrl : MonoBehaviour {
 		_player = Instantiate(_playerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
-	public void destroy() {
+	public void Destroy() {
 		Destroy(_player);
 	}
 
-	public void move() {
+	public void Move() {
 		if (_direction == 2) _x--;
 		if (_direction == -2) _x++;
 		if (_direction == 1) _y++;
@@ -62,20 +62,20 @@ public class PlayerCtrl : MonoBehaviour {
 
 		if (_field.field[_x, _y].tag == "Land" && _isWater) {
 
-			destroy();
+			Destroy();
 			_player = Instantiate(_playerInLand, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 
 			_direction = 0;
 			_isWater = false;
 			if(Time.timeScale != 0) {
-				_field.fillTrackArea(_seaEnemies);
-				_field.clearTrack();
+				_field.FillTrackArea(_seaEnemies);
+				_field.DeleteTrack();
 			}
 		}
 		if (_field.field[_x, _y].tag == "Sea") {
 			_isWater = true;
 
-			destroy();
+			Destroy();
 			_player = Instantiate(_playerInSea, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 
 			Destroy(_field.field[_x, _y]);
@@ -83,7 +83,7 @@ public class PlayerCtrl : MonoBehaviour {
 		}
 	}
 
-	public void getDirection() {
+	public void GetDirection() {
 		if (Input.touchCount > 0 && Input.touchCount < 2 && Input.GetTouch(0).phase == TouchPhase.Moved) {
 			Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
 
@@ -115,35 +115,39 @@ public class PlayerCtrl : MonoBehaviour {
 			_direction = -1;
 	}
 
-	public void setDirection(int direction) {
-		_direction = direction;
-	}
+	//public void SetDirection(int direction) {
+	//	_direction = direction;
+	//}
 
-	public bool isSelfCrosed() {
+	public bool IsSelfCrosed() {
 		return _isSelfCross;
 	}
 
-	public void updateSelfCrosed() {
+	public void UpdateSelfCrosed() {
 		_isSelfCross = _field.field[_x, _y].tag == "Track";
 	}
 
-	public int getX() {
+	public int GetX() {
 		return _x;
 	}
 
-	public int getY() {
+	public int GetY() {
 		return _y;
 	}
 
-	public void decreaseLives() {
+	public void DecreaseLives() {
 		_count_lives--;
 	}
 
-	public int getCountLives() {
+	public int GetCountLives() {
 		return _count_lives;
 	}
 
-	public void setCountLives(int lives) {
+	public void SetCountLives(int lives) {
 		_count_lives = lives;
+	}
+
+	public void AddCountLives(int lives) {
+		_count_lives += lives;
 	}
 }

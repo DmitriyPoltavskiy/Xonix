@@ -19,12 +19,12 @@ public class GameOver : MonoBehaviour {
 		_timer = timer;
 	}
 
-	public void gameOver() {
-		if (_player.isSelfCrosed() || _seaEnemy.EnemiesHitTrackOrXonix() || _landEnemy.isHitXonix() || _timer.TimeIsOver()) {
+	public void GameIsOver() {
+		if (_player.IsSelfCrosed() || _seaEnemy.EnemiesHitTrackOrXonix() || _landEnemy.IsHitXonix() || _timer.TimeIsOver()) {
 			openPanel();
-			_player.decreaseLives();
+			_player.DecreaseLives();
 
-			if (_player.getCountLives() < 0)
+			if (_player.GetCountLives() < 1)
 				_panel.GetComponentInChildren<Text>().text = "Game Over";
 			else
 				_panel.GetComponentInChildren<Text>().text = "Tap to retry";
@@ -36,7 +36,7 @@ public class GameOver : MonoBehaviour {
 		_panel.SetActive(true);
 	}
 
-	public void closePanel() {
+	public void ClosePanel() {
 		Time.timeScale = 1;
 		_panel.SetActive(false);
 	}

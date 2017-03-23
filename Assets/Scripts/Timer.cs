@@ -2,9 +2,10 @@
 
 public class Timer : MonoBehaviour {
 	float _time;
-	float _delay = 60.5f;
+	float _delay;
 
-	public Timer() {
+	public Timer(float delay) {
+		_delay = delay;
 		_time = Time.time + _delay;
 	}
 

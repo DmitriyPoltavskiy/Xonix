@@ -16,10 +16,10 @@ public class LandEnemy : MonoBehaviour {
 		_player = player;
 		_landEnemy = landEnemy;
 
-		init();
+		Init();
 	}
 
-	public void init() {
+	public void Init() {
 		do {
 			_x = Random.Range(2, Field.WIDTH - 2);
 			_y = Random.Range(0, 3);
@@ -36,7 +36,7 @@ public class LandEnemy : MonoBehaviour {
 		_landEnemy = Instantiate(_landEnemy, new Vector3(_x, _y, _z), Quaternion.identity) as GameObject;
 	}
 
-	public void destroy() {
+	public void Destroy() {
 		Destroy(_landEnemy);
 	}
 
@@ -44,26 +44,26 @@ public class LandEnemy : MonoBehaviour {
 		if (_x <= 0 || _x >= Field.WIDTH - 1) _dx = -_dx;
 		if (_y <= 0 || _y >= Field.HEIGHT - 1) _dy = -_dy;
 
-		if (_field.field[_x + _dx, _y].tag == "Sea") _dx = -_dx;
-		if (_field.field[_x, _y + _dy].tag == "Sea") _dy = -_dy;
+		if (_field.field[_x + _dx, _y].tag == "Sea" || _field.field[_x + _dx, _y].tag == "Track") _dx = -_dx;
+		if (_field.field[_x, _y + _dy].tag == "Sea" || _field.field[_x, _y + _dy].tag == "Track") _dy = -_dy;
 	}
 
-	public void move() {
+	public void Move() {
 		UpdateDirection();
 		_x += _dx;
 		_y += _dy;
 		_landEnemy.transform.position = new Vector3(_x, _y, _z);
 	}
 
-	public bool isHitXonix() {
-		if (_x + _dx == _player.getX() && _y + _dy == _player.getY()) return true;
-		if (_x - _dx == _player.getX() && _y - _dy == _player.getY()) return true;
-		if (_x + _dx == _player.getX() && _y - _dy == _player.getY()) return true;
-		if (_x - _dx == _player.getX() && _y + _dy == _player.getY()) return true;
-		if (_x + _dx == _player.getX() && _y == _player.getY()) return true;
-		if (_x - _dx == _player.getX() && _y == _player.getY()) return true;
-		if (_x == _player.getX() && _y + _dy == _player.getY()) return true;
-		if (_x == _player.getX() && _y - _dy == _player.getY()) return true;
+	public bool IsHitXonix() {
+		if (_x + _dx == _player.GetX() && _y + _dy == _player.GetY()) return true;
+		if (_x - _dx == _player.GetX() && _y - _dy == _player.GetY()) return true;
+		if (_x + _dx == _player.GetX() && _y - _dy == _player.GetY()) return true;
+		if (_x - _dx == _player.GetX() && _y + _dy == _player.GetY()) return true;
+		if (_x + _dx == _player.GetX() && _y == _player.GetY()) return true;
+		if (_x - _dx == _player.GetX() && _y == _player.GetY()) return true;
+		if (_x == _player.GetX() && _y + _dy == _player.GetY()) return true;
+		if (_x == _player.GetX() && _y - _dy == _player.GetY()) return true;
 
 		return false;
 	}
